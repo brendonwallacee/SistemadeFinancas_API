@@ -1,7 +1,7 @@
 package com.example.api.services;
 
-import com.example.api.domain.usuario.FuncaoUsuario;
-import com.example.api.domain.usuario.Usuario;
+import com.example.api.domain.usuario.entidade.FuncaoUsuario;
+import com.example.api.domain.usuario.entidade.Usuario;
 import com.example.api.repositories.UsuarioRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

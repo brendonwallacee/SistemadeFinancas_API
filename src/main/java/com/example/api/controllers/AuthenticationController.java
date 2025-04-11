@@ -1,54 +1,38 @@
 package com.example.api.controllers;
 
-import com.example.api.domain.usuario.AuthenticationDTO;
-import com.example.api.domain.usuario.LoginResponseDTO;
-import com.example.api.domain.usuario.RegisterDTO;
-import com.example.api.domain.usuario.Usuario;
-import com.example.api.infra.security.TokenService;
-import com.example.api.repositories.UsuarioRepository;
+import com.example.api.domain.usuario.dto.AutenticacaoDTO;
+import com.example.api.domain.usuario.dto.RegistrarUsuarioDTO;
+import com.example.api.domain.usuario.dto.RespostaLoginDTO;
+import com.example.api.services.AutenticacaoService;
+import com.example.api.services.RegistrarUsuarioService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("auth")
 public class AuthenticationController {
-    @Autowired
-    private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private UsuarioRepository repository;
-
-    @Autowired
-    private TokenService tokenService;
+    private final RegistrarUsuarioService usuarioService;
+    private final AutenticacaoService autenticacaoService;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data){
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.senha());
-        var auth = this.authenticationManager.authenticate(usernamePassword);
-
-        var token = tokenService.generateToken((Usuario) auth.getPrincipal());
-
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+    public ResponseEntity<RespostaLoginDTO> login(@RequestBody @Valid AutenticacaoDTO data) {
+        RespostaLoginDTO resposta = autenticacaoService.autenticar(data);
+        return ResponseEntity.ok(resposta);
     }
 
     @PostMapping("/registrar")
-    public ResponseEntity registrar(@RequestBody @Valid RegisterDTO data){
-        if (this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
-
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.senha());
-        Usuario novoUsuario = new Usuario(data.login(), encryptedPassword, data.funcao());
-
-        this.repository.save(novoUsuario);
-
+    public ResponseEntity<Void> registrar(@RequestBody @Valid RegistrarUsuarioDTO data) {
+        usuarioService.registrarUsuario(data);
         return ResponseEntity.ok().build();
+
     }
 
 }
