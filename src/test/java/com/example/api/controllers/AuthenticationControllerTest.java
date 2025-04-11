@@ -1,9 +1,9 @@
 package com.example.api.controllers;
 
-import com.example.api.domain.usuario.AuthenticationDTO;
-import com.example.api.domain.usuario.FuncaoUsuario;
-import com.example.api.domain.usuario.RegisterDTO;
-import com.example.api.domain.usuario.Usuario;
+import com.example.api.domain.usuario.dto.AutenticacaoDTO;
+import com.example.api.domain.usuario.dto.RegistrarUsuarioDTO;
+import com.example.api.domain.usuario.entidade.FuncaoUsuario;
+import com.example.api.domain.usuario.entidade.Usuario;
 import com.example.api.infra.security.SecurityConfiguration;
 import com.example.api.infra.security.TokenService;
 import com.example.api.repositories.UsuarioRepository;
@@ -46,7 +46,7 @@ class AuthenticationControllerTest {
     @Test
     @DisplayName("Retorno de token com login certo")
     void deveRetornarTokenAoFazerLoginComCredenciaisValidas() throws Exception {
-        AuthenticationDTO authDTO = new AuthenticationDTO("user", "senha");
+        AutenticacaoDTO authDTO = new AutenticacaoDTO("user", "senha");
 
         Usuario usuario = new Usuario("user", "senhaCriptografada", FuncaoUsuario.ADMIN);
         UsernamePasswordAuthenticationToken authToken =
@@ -70,13 +70,24 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    @DisplayName("Bad Request no login incorreto")
-    void deveRetornarBadRequestSeLoginForIncorreto(){}
+    @DisplayName("Retorno do Forbidden - login incorreto")
+    void deveRetornarBadRequestSeLoginForIncorreto() throws Exception{
+        Mockito.when(authenticationManager.authenticate(Mockito.any()))
+                .thenThrow(new org.springframework.security.authentication.BadCredentialsException("Credenciais inválidas"));
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                        "login": "usuario_invalido",
+                        "senha": "senha_errada"
+                        }"""))
+                .andExpect(status().isForbidden());
+    }
 
     @Test
     @DisplayName("Registro de Usuario")
     void deveRegistrarUsuarioComSucesso() throws Exception {
-        RegisterDTO registerDTO = new RegisterDTO("newuser", "novaSenha", FuncaoUsuario.ADMIN);
+        RegistrarUsuarioDTO RegistrarUsuario_DTO = new RegistrarUsuarioDTO("newuser", "novaSenha", FuncaoUsuario.ADMIN);
 
         Mockito.when(usuarioRepository.findByLogin("newuser"))
                 .thenReturn(null);
