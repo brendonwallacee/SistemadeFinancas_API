@@ -1,16 +1,14 @@
-package com.example.api.domain.usuario;
+package com.example.api.domain.usuario.entidade;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 
 @Entity(name = "usuarios")
@@ -23,12 +21,24 @@ public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+    private String nome;
+    private String email;
     private String login;
     private String senha;
+
+    @Enumerated(EnumType.STRING)
     private FuncaoUsuario funcao;
 
 
-    public Usuario(String login, String senha, FuncaoUsuario funcao) {
+    public Usuario(String nome,String email, String login, String senha, FuncaoUsuario funcao) {
+        this.nome = nome;
+        this.email = email;
+        this.login = login;
+        this.senha = senha;
+        this.funcao = funcao;
+    }
+
+    public Usuario( String login, String senha, FuncaoUsuario funcao) {
         this.login = login;
         this.senha = senha;
         this.funcao = funcao;
