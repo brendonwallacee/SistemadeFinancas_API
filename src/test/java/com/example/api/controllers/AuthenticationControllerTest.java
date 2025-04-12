@@ -1,23 +1,22 @@
 package com.example.api.controllers;
 
-import com.example.api.domain.usuario.dto.AutenticacaoDTO;
-import com.example.api.domain.usuario.dto.RegistrarUsuarioDTO;
-import com.example.api.domain.usuario.entidade.FuncaoUsuario;
-import com.example.api.domain.usuario.entidade.Usuario;
+import com.example.api.domain.usuario.dto.RespostaLoginDTO;
 import com.example.api.infra.security.SecurityConfiguration;
 import com.example.api.infra.security.TokenService;
 import com.example.api.repositories.UsuarioRepository;
+import com.example.api.services.AutenticacaoService;
+import com.example.api.services.RegistrarUsuarioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 
 import static
         org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,33 +28,32 @@ import static
 
 @WebMvcTest(AuthenticationController.class)
 @Import(SecurityConfiguration.class)
+@SuppressWarnings("unused")
 class AuthenticationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
-    private AuthenticationManager authenticationManager;
+    private AutenticacaoService autenticacaoService;
 
     @MockitoBean
-    private UsuarioRepository usuarioRepository;
+    private RegistrarUsuarioService usuarioService;
 
     @MockitoBean
     private TokenService tokenService;
 
+    @MockitoBean
+    private UsuarioRepository usuarioRepository;
+
+
     @Test
     @DisplayName("Retorno de token com login certo")
     void deveRetornarTokenAoFazerLoginComCredenciaisValidas() throws Exception {
-        AutenticacaoDTO authDTO = new AutenticacaoDTO("user", "senha");
+        RespostaLoginDTO respostaLoginDTO = new RespostaLoginDTO("token-gerado");
 
-        Usuario usuario = new Usuario("user", "senhaCriptografada", FuncaoUsuario.ADMIN);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(usuario, null);
-
-        Mockito.when(authenticationManager.authenticate(Mockito.any()))
-                .thenReturn(authToken);
-        Mockito.when(tokenService.generateToken(Mockito.any()))
-                .thenReturn("token-gerado");
+        Mockito.when(autenticacaoService.autenticar(Mockito.any()))
+                .thenReturn(respostaLoginDTO);
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -72,7 +70,7 @@ class AuthenticationControllerTest {
     @Test
     @DisplayName("Retorno do Forbidden - login incorreto")
     void deveRetornarBadRequestSeLoginForIncorreto() throws Exception{
-        Mockito.when(authenticationManager.authenticate(Mockito.any()))
+        Mockito.when(autenticacaoService.autenticar(Mockito.any()))
                 .thenThrow(new org.springframework.security.authentication.BadCredentialsException("Credenciais inválidas"));
         mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -87,10 +85,8 @@ class AuthenticationControllerTest {
     @Test
     @DisplayName("Registro de Usuario")
     void deveRegistrarUsuarioComSucesso() throws Exception {
-        RegistrarUsuarioDTO RegistrarUsuario_DTO = new RegistrarUsuarioDTO("newuser", "novaSenha", FuncaoUsuario.ADMIN);
 
-        Mockito.when(usuarioRepository.findByLogin("newuser"))
-                .thenReturn(null);
+        Mockito.doNothing().when(usuarioService).registrarUsuario(Mockito.any());
 
         mockMvc.perform(post("/auth/registrar")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -107,8 +103,7 @@ class AuthenticationControllerTest {
     @Test
     @DisplayName("Bad Request no registro de usuario existente")
     void deveRetornarBadRequestSeUsuarioJaExistir() throws Exception {
-        Mockito.when(usuarioRepository.findByLogin("existente"))
-                .thenReturn(new Usuario());
+        Mockito.doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuario já cadastrado")).when(usuarioService).registrarUsuario(Mockito.any());
 
         mockMvc.perform(post("/auth/registrar")
                         .contentType(MediaType.APPLICATION_JSON)
