@@ -1,17 +1,16 @@
 package com.example.api.controllers;
 
+import com.example.api.domain.token.dto.ConfirmarTokenDTO;
 import com.example.api.domain.usuario.dto.AutenticacaoDTO;
+import com.example.api.domain.usuario.dto.RecuperarSenhaDTO;
 import com.example.api.domain.usuario.dto.RegistrarUsuarioDTO;
 import com.example.api.domain.usuario.dto.RespostaLoginDTO;
 import com.example.api.services.AutenticacaoService;
-import com.example.api.services.RegistrarUsuarioService;
+import com.example.api.services.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("auth")
 public class AuthenticationController {
 
-    private final RegistrarUsuarioService usuarioService;
+    private final UsuarioService usuarioService;
     private final AutenticacaoService autenticacaoService;
 
     @PostMapping("/login")
@@ -33,6 +32,19 @@ public class AuthenticationController {
         usuarioService.registrarUsuario(data);
         return ResponseEntity.ok().build();
 
+    }
+
+    @PostMapping("/recuperar_senha")
+    public ResponseEntity<Void> recuperarSenha(@RequestBody @Valid RecuperarSenhaDTO data) {
+        usuarioService.recuperarSenha(data);
+        return ResponseEntity.ok().build();
+
+    }
+
+    @PostMapping("/confirmar_token")
+    public ResponseEntity<Void> confirmarToken(@RequestBody @Valid ConfirmarTokenDTO data){
+        usuarioService.confirmarToken(data);
+        return ResponseEntity.ok().build();
     }
 
 }
