@@ -8,7 +8,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class UsuarioMapper {
     public Usuario toEntity(RegistrarUsuarioDTO dto) {
-        return new Usuario(dto.login(), new BCryptPasswordEncoder().encode(dto.senha()), dto.funcao());
+        return new Usuario(dto.login(), new BCryptPasswordEncoder().encode(dto.senha()), dto.funcao(), dto.email());
     }
 
+    public void atualizarSenha(Usuario usuario, String novaSenha) {
+        usuario.setSenha(new BCryptPasswordEncoder().encode(novaSenha));
+    }
 }

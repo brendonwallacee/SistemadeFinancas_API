@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Entity(name = "usuarios")
 @Table(name = "usuarios")
+@Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,7 +22,6 @@ public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private String nome;
     private String email;
     private String login;
     private String senha;
@@ -30,8 +30,7 @@ public class Usuario implements UserDetails {
     private FuncaoUsuario funcao;
 
 
-    public Usuario(String nome,String email, String login, String senha, FuncaoUsuario funcao) {
-        this.nome = nome;
+    public Usuario( String login, String senha, FuncaoUsuario funcao, String email) {
         this.email = email;
         this.login = login;
         this.senha = senha;

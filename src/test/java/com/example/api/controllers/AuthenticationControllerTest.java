@@ -5,7 +5,7 @@ import com.example.api.infra.security.SecurityConfiguration;
 import com.example.api.infra.security.TokenService;
 import com.example.api.repositories.UsuarioRepository;
 import com.example.api.services.AutenticacaoService;
-import com.example.api.services.RegistrarUsuarioService;
+import com.example.api.services.UsuarioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,7 +38,7 @@ class AuthenticationControllerTest {
     private AutenticacaoService autenticacaoService;
 
     @MockitoBean
-    private RegistrarUsuarioService usuarioService;
+    private UsuarioService usuarioService;
 
     @MockitoBean
     private TokenService tokenService;

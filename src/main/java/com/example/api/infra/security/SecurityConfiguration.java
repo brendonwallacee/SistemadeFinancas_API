@@ -41,6 +41,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/registrar").permitAll()
                         .requestMatchers(HttpMethod.POST, "/financas").hasRole("ADMIN")
+                        .requestMatchers("/auth/recuperar_senha", "auth/confirmar_token").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter,
