@@ -35,3 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+### DEMAIS ###
+src/main/resources/application.properties
